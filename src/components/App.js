@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        const jsonData = await response.json();
-        setData(jsonData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      }
+    const fetchData = () => {
+      fetch('https://jsonplaceholder.typicode.com/posts')
+        .then(response => response.json())
+        .then(jsonData => {
+          setData(jsonData);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
     };
 
     fetchData();
-  }, []);
+  }, []); 
+  
+  const memoizedData = useMemo(() => data, [data]);
 
   return (
     <div className="App">
@@ -28,7 +31,7 @@ function App() {
         <div>
           <h2>Posts</h2>
           <ul>
-            {data && data.map(post => (
+            {memoizedData && memoizedData.map(post => (
               <li key={post.id}>
                 <h4>{post.title}</h4>
                 <p>{post.body}</p>
